@@ -1,5 +1,5 @@
 <?php
-class Produk
+abstract class Produk
 {
   private $judul,
     $penulis,
@@ -60,9 +60,10 @@ class Produk
   }
   public function getDiskon($diskon)
   {
-    return $this->diskon;
+    return $this->$diskon;
   }
-  public function getInfoLengkap()
+  public abstract function getInfoProduk();
+  public function getInfo()
   {
     $str = "{$this->judul} | {$this->getLabel()} (Rp. {$this->harga})";
     return $str;
@@ -77,9 +78,9 @@ class Komik extends Produk
     parent::__construct($judul, $penulis, $penerbit, $harga);
     $this->jmlHalaman = $jmlHalaman;
   }
-  public function getInfoLengkap()
+  public function getInfoProduk()
   {
-    $str = "Komik : " . parent::getInfoLengkap() . " - {$this->jmlHalaman} Halaman";
+    $str = "Komik : " . $this->getInfo() . " - {$this->jmlHalaman} Halaman";
     return $str;
   }
 }
@@ -92,43 +93,35 @@ class Game extends Produk
     parent::__construct($judul, $penulis, $penerbit, $harga);
     $this->waktuMain = $waktuMain;
   }
-  public function getInfoLengkap()
+  public function getInfoProduk()
   {
-    $str = "Game : " . parent::getInfoLengkap() . " ~ {$this->waktuMain} Jam";
+    $str = "Game : " . $this->getInfo() . " ~ {$this->waktuMain} Jam";
     return $str;
   }
 }
 
 class CetakInfoProduk
 {
-  public function cetak(Produk $produk)
+  public $daftarProduk = [];
+  public function tambahProduk(Produk $produk)
   {
-    echo "{$produk->judul} | {$produk->getLabel()} (Rp. {$produk->harga})";
+    $this->daftarProduk[] = $produk;
+  }
+  public function cetak()
+  {
+    $str = "DAFTAR PRODUK : <br>";
+    foreach ($this->daftarProduk as $p) {
+      $str .= "- {$p->getInfoProduk()} <br>";
+    }
+    return $str;
   }
 }
 
 $produk1 = new Komik("Naruto", "Masashi Kishimoto", "Shonen Jump", 30000, 100);
 $produk2 = new Game("Uncharted", "Neil Druckmann", "Sony Computer", 250000, 50);
 
+$cetakProduk = new CetakInfoProduk();
+$cetakProduk->tambahProduk($produk1);
+$cetakProduk->tambahProduk($produk2);
 
-
-echo "Komik : " . $produk1->getLabel();
-echo "<br>";
-echo "Game : " . $produk2->getLabel();
-
-echo "<hr>";
-
-echo $produk1->getInfoLengkap();
-echo "<br>";
-echo $produk2->getInfoLengkap();
-echo "<hr>";
-
-
-$produk2->setDiskon(50);
-echo $produk2->getHarga();
-echo "<hr>";
-
-
-$produk1->setJudul("Naruto Shipuden");
-echo $produk1->getJudul();
-echo "<hr>";
+echo $cetakProduk->cetak();
